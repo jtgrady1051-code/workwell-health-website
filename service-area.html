@@ -92,7 +92,7 @@
       </div>
 
       <div class="fl-map-wrap reveal">
-        <p class="map-caption">Click or tap a county for coverage details.</p>
+        <p class="map-caption">Hover over a county to see its name and coverage — tap on mobile.</p>
         <div class="fl-map-inner">
           <svg viewBox="0 0 720.0 692.6" class="fl-map" role="img" aria-label="Map of Florida highlighting the ten counties WorkWell Health serves">
             <g class="fl-context">
@@ -327,7 +327,9 @@
       }));
     }
 
-    // Exploded Florida county map: click/tap a real county shape to pop it out and show its detail card.
+    // Exploded Florida county map: hover (or tap/focus) a real county shape to pop it out
+    // and show its name + cities + booking link immediately — no click required to identify
+    // a county, which matters for drivers passing through who don't know the area.
     (function () {
       const wrap = document.querySelector(".fl-map-wrap");
       const group = document.getElementById("flCovered");
@@ -337,52 +339,96 @@
       const title = document.getElementById("flPopoverTitle");
       const citiesEl = document.getElementById("flPopoverCities");
       const link = document.getElementById("flPopoverLink");
+      // matchMedia alone isn't reliable on every touch/hybrid device — some report hover:hover
+      // even when the current interaction is a tap. Once a real touch is seen anywhere on the
+      // page, permanently stop treating the synthetic mouseenter/mouseleave events that browsers
+      // fire after a tap as genuine hover, so an open popover doesn't get scheduled to close
+      // moments after tapping it open.
+      let touchSeen = false;
+      window.addEventListener("touchstart", () => { touchSeen = true; }, { passive: true });
+      function hoverAllowed() {
+        return !touchSeen && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+      }
 
-      function closeAll() {
+      // Tapping/clicking a county shape briefly focuses it (it's tabindex="0"), and the blur
+      // that follows would otherwise schedule a close moments after the tap opened it. Only
+      // treat focus/blur as hover-equivalent when focus arrived via real keyboard Tab, not as
+      // a side effect of a pointer/touch interaction.
+      let viaPointer = false;
+      document.addEventListener("pointerdown", () => { viaPointer = true; }, true);
+      document.addEventListener("keydown", (e) => { if (e.key === "Tab") viaPointer = false; }, true);
+
+      let closeTimer = null;
+      function cancelClose() { if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; } }
+      function closeAllNow() {
         paths.forEach((p) => { p.classList.remove("is-open"); p.setAttribute("aria-pressed", "false"); });
         group.classList.remove("has-open");
         popover.hidden = true;
       }
+      // A short grace period so the pointer can travel from the county shape into the
+      // popover (to click its button) without the card disappearing first.
+      function scheduleClose() { cancelClose(); closeTimer = setTimeout(closeAllNow, 220); }
+
+      function openCounty(path) {
+        cancelClose();
+        closeAllNow();
+
+        path.classList.add("is-open");
+        path.setAttribute("aria-pressed", "true");
+        path.style.setProperty("--ex", `${path.dataset.ex}px`);
+        path.style.setProperty("--ey", `${path.dataset.ey}px`);
+        group.classList.add("has-open");
+        // Bring the exploded county to the front so its "popped out" edge isn't covered by neighbors.
+        group.appendChild(path);
+
+        title.textContent = path.dataset.name;
+        citiesEl.textContent = path.dataset.cities;
+        link.textContent = path.dataset.cta;
+
+        const cxPct = parseFloat(path.dataset.cxpct);
+        const cyPct = parseFloat(path.dataset.cypct);
+        // Flip the popover above/below and left/right so it stays inside the map on edge counties.
+        const flipUp = cyPct > 62;
+        const nearRight = cxPct > 72;
+        const nearLeft = cxPct < 22;
+        popover.style.top = flipUp ? "auto" : `calc(${cyPct}% + 22px)`;
+        popover.style.bottom = flipUp ? `calc(${100 - cyPct}% + 22px)` : "auto";
+        popover.style.left = nearLeft ? "8px" : nearRight ? "auto" : `${cxPct}%`;
+        popover.style.right = nearRight ? "8px" : "auto";
+        popover.style.transform = nearLeft || nearRight ? "none" : "translateX(-50%)";
+        popover.hidden = false;
+      }
 
       paths.forEach((path) => {
         path.setAttribute("aria-pressed", "false");
-        const activate = (e) => {
+
+        // Desktop/mouse: identify the county the instant the pointer touches it.
+        path.addEventListener("mouseenter", () => { if (hoverAllowed()) openCounty(path); });
+        path.addEventListener("mouseleave", () => { if (hoverAllowed()) scheduleClose(); });
+        // Keyboard: Tab focus behaves like hover so it's discoverable without a click too.
+        path.addEventListener("focus", () => { if (!viaPointer) openCounty(path); });
+        path.addEventListener("blur", () => { if (!viaPointer) scheduleClose(); });
+
+        // Touch/click: tap opens it (and re-tapping the same county closes it) — this is
+        // the only mechanism on touch devices, which have no hover state.
+        path.addEventListener("click", (e) => {
           e.stopPropagation();
           const wasOpen = path.classList.contains("is-open");
-          closeAll();
-          if (wasOpen) return;
-
-          path.classList.add("is-open");
-          path.setAttribute("aria-pressed", "true");
-          path.style.setProperty("--ex", `${path.dataset.ex}px`);
-          path.style.setProperty("--ey", `${path.dataset.ey}px`);
-          group.classList.add("has-open");
-          // Bring the exploded county to the front so its "popped out" edge isn't covered by neighbors.
-          group.appendChild(path);
-
-          title.textContent = path.dataset.name;
-          citiesEl.textContent = path.dataset.cities;
-          link.textContent = path.dataset.cta;
-
-          const cxPct = parseFloat(path.dataset.cxpct);
-          const cyPct = parseFloat(path.dataset.cypct);
-          // Flip the popover above/below and left/right so it stays inside the map on edge counties.
-          const flipUp = cyPct > 62;
-          const nearRight = cxPct > 72;
-          const nearLeft = cxPct < 22;
-          popover.style.top = flipUp ? "auto" : `calc(${cyPct}% + 22px)`;
-          popover.style.bottom = flipUp ? `calc(${100 - cyPct}% + 22px)` : "auto";
-          popover.style.left = nearLeft ? "8px" : nearRight ? "auto" : `${cxPct}%`;
-          popover.style.right = nearRight ? "8px" : "auto";
-          popover.style.transform = nearLeft || nearRight ? "none" : "translateX(-50%)";
-          popover.hidden = false;
-        };
-        path.addEventListener("click", activate);
-        path.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(e); } });
+          cancelClose();
+          closeAllNow();
+          if (!wasOpen) openCounty(path);
+        });
+        path.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCounty(path); }
+        });
       });
 
-      document.addEventListener("click", closeAll);
-      document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAll(); });
+      // Moving the pointer onto the popover itself (to reach its button) cancels the close timer.
+      popover.addEventListener("mouseenter", () => { if (hoverAllowed()) cancelClose(); });
+      popover.addEventListener("mouseleave", () => { if (hoverAllowed()) scheduleClose(); });
+
+      document.addEventListener("click", closeAllNow);
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAllNow(); });
     })();
   </script>
 </body>

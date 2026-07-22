@@ -53,7 +53,7 @@ Research + tactics behind the proof site, and the checklist to dominate local se
 
 ## Placeholders still to replace before launch
 
-- Badge logo: the site uses an inline SVG recreation — swap for Krista's real logo file when she sends it.
+- Badge logo: the header/footer currently show a plain "WW" monogram — swap in Krista's real logo file when she sends it.
 - Sample reviews → real Google reviews.
 - Demo form → wired to a backend (email/SMS to Krista).
 - Photos: Krista needs to take some — a real photo of her on-site should replace the "KR" initials avatar, and real photos power the Google Business Profile.

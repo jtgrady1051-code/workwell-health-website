@@ -275,7 +275,7 @@ footer .legal { margin-top: 40px; padding-top: 24px; border-top: 1px solid rgba(
 @media (max-width: 760px) {
   section { padding: 64px 0; }
   .callbar { display: flex; }
-  .nav .btn-primary { display: none; }
+  .nav .btn-primary, .nav .btn-outline { display: none; }
   .contact-grid { grid-template-columns: 1fr; gap: 36px; }
   .hero-inner { padding: 64px 0 80px; }
   .hero .cta-row .btn { width: 100%; }

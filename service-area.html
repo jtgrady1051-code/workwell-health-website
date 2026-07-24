@@ -346,17 +346,6 @@
       const title = document.getElementById("flPopoverTitle");
       const citiesEl = document.getElementById("flPopoverCities");
       const link = document.getElementById("flPopoverLink");
-      // matchMedia alone isn't reliable on every touch/hybrid device — some report hover:hover
-      // even when the current interaction is a tap. Once a real touch is seen anywhere on the
-      // page, permanently stop treating the synthetic mouseenter/mouseleave events that browsers
-      // fire after a tap as genuine hover, so an open popover doesn't get scheduled to close
-      // moments after tapping it open.
-      let touchSeen = false;
-      window.addEventListener("touchstart", () => { touchSeen = true; }, { passive: true });
-      function hoverAllowed() {
-        return !touchSeen && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-      }
-
       // Tapping/clicking a county shape briefly focuses it (it's tabindex="0"), and the blur
       // that follows would otherwise schedule a close moments after the tap opened it. Only
       // treat focus/blur as hover-equivalent when focus arrived via real keyboard Tab, not as
@@ -409,9 +398,11 @@
       paths.forEach((path) => {
         path.setAttribute("aria-pressed", "false");
 
-        // Desktop/mouse: identify the county the instant the pointer touches it.
-        path.addEventListener("mouseenter", () => { if (hoverAllowed()) openCounty(path); });
-        path.addEventListener("mouseleave", () => { if (hoverAllowed()) scheduleClose(); });
+        // Desktop/mouse: identify the county the instant the pointer touches it. Checking
+        // pointerType directly (rather than a page-wide "have we ever seen touch" flag) means
+        // a touchscreen laptop that also has a mouse/trackpad still gets real hover behavior.
+        path.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") openCounty(path); });
+        path.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") scheduleClose(); });
         // Keyboard: Tab focus behaves like hover so it's discoverable without a click too.
         path.addEventListener("focus", () => { if (!viaPointer) openCounty(path); });
         path.addEventListener("blur", () => { if (!viaPointer) scheduleClose(); });
@@ -431,8 +422,8 @@
       });
 
       // Moving the pointer onto the popover itself (to reach its button) cancels the close timer.
-      popover.addEventListener("mouseenter", () => { if (hoverAllowed()) cancelClose(); });
-      popover.addEventListener("mouseleave", () => { if (hoverAllowed()) scheduleClose(); });
+      popover.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") cancelClose(); });
+      popover.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") scheduleClose(); });
 
       document.addEventListener("click", closeAllNow);
       document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAllNow(); });

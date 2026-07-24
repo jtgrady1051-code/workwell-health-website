@@ -57,7 +57,7 @@ section { padding: 96px 0; position: relative; }
 .btn-sm { padding: 10px 18px; min-height: 40px; font-size: .85rem; }
 
 /* ============ HEADER / NAV ============ */
-header { position: sticky; top: 0; z-index: 50; background: rgba(250, 248, 244, .92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+header { position: sticky; top: 0; z-index: 50; background: #fcfcfc; border-bottom: 1px solid var(--line); }
 .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
 .brand .mark { height: 42px; width: auto; display: flex; align-items: center; flex: none; }

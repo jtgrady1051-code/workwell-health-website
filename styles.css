@@ -150,6 +150,7 @@ header { position: sticky; top: 0; z-index: 50; background: #fcfcfc; border-bott
 .card-ex .who h3 { font-size: 1.45rem; }
 .card-ex .who .creds { font-weight: 600; color: var(--teal-deep); font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; margin: 6px 0 16px; }
 .card-ex .who p { color: var(--muted); max-width: 42rem; }
+.card-ex .who .nrcme-badge { height: 68px; width: auto; margin-top: 18px; display: block; }
 .credentials-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-top: 40px; }
 .credentials-list .item { background: var(--card); padding: 26px 24px; }
 .credentials-list .item strong { display: block; font-family: var(--serif); font-size: 1.5rem; color: var(--ink); }
@@ -250,6 +251,11 @@ footer .f-brand { display: flex; align-items: center; gap: 14px; max-width: 22re
 footer .mark { height: 44px; width: auto; display: flex; align-items: center; flex: none; background: #fff; padding: 4px 6px; border-radius: 8px; }
 footer .mark img { height: 100%; width: auto; object-fit: contain; display: block; }
 footer strong { color: #fff; font-family: var(--serif); font-weight: 700; font-size: 1.05rem; display: block; margin-bottom: 4px; }
+footer .f-follow { display: flex; gap: 10px; margin-top: 16px; }
+footer .f-follow a { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; flex: none; }
+footer .f-follow a:hover { background: rgba(255,255,255,.2); }
+footer .f-badge { margin-top: 18px; }
+footer .f-badge img { height: 52px; width: auto; background: #fff; padding: 6px 10px; border-radius: 8px; display: block; }
 footer a { color: #bcd4f0; text-decoration: none; }
 footer a:hover { text-decoration: underline; }
 footer h4 { font-family: var(--sans); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #fff; margin-bottom: 14px; }
@@ -281,6 +287,7 @@ footer .legal { margin-top: 40px; padding-top: 24px; border-top: 1px solid rgba(
   .hero .facts { grid-template-columns: 1fr; gap: 20px; }
   .card-ex { padding: 32px 24px; flex-direction: column; text-align: center; }
   .card-ex .who p { max-width: none; }
+  .card-ex .who .nrcme-badge { margin-left: auto; margin-right: auto; }
   footer .f-grid { grid-template-columns: 1fr; }
   .faq-cta { flex-direction: column; align-items: flex-start; }
 }

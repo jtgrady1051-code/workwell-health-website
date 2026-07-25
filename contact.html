@@ -114,7 +114,11 @@
             </a>
           </div>
         </div>
-        <form class="reveal" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Request sent ✓ (demo)';">
+        <form class="reveal" id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+          <input type="hidden" name="access_key" value="9f814137-d162-4ff9-bbea-b76b9fac129e">
+          <input type="hidden" name="subject" value="New booking request from workwell-health.com">
+          <input type="hidden" name="from_name" value="WorkWell Health Website">
+          <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
           <label for="f-name">Your name</label>
           <input id="f-name" name="name" type="text" autocomplete="name" placeholder="First and last name" required />
           <label for="f-phone">Phone number</label>
@@ -138,7 +142,7 @@
             <option>Saturday</option>
           </select>
           <button class="btn btn-cta" type="submit">Request my visit</button>
-          <p class="form-note">Demo form — connect to email/SMS before launch. We reply fast during business hours.</p>
+          <p class="form-note" id="form-note">We reply fast during business hours.</p>
         </form>
       </div>
     </div>
@@ -210,6 +214,30 @@
         mobilePanel.hidden = true;
         menuBtn.setAttribute("aria-expanded", "false");
       }));
+    }
+
+    const contactForm = document.getElementById("contact-form");
+    const formNote = document.getElementById("form-note");
+    if (contactForm) {
+      contactForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const btn = contactForm.querySelector("button");
+        const originalLabel = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Sending...";
+        try {
+          const data = new FormData(contactForm);
+          const res = await fetch(contactForm.action, { method: "POST", body: data, headers: { Accept: "application/json" } });
+          if (!res.ok) throw new Error("bad response");
+          contactForm.reset();
+          btn.textContent = "Request sent ✓";
+          formNote.textContent = "Got it — we'll reach out shortly. You can also call or text us anytime.";
+        } catch (err) {
+          btn.disabled = false;
+          btn.textContent = originalLabel;
+          formNote.innerHTML = "That didn't go through. Please call or text us at <a href=\"tel:+19414579825\">(941) 457-9825</a>, or email <a href=\"mailto:krista@workwell-health.com\">krista@workwell-health.com</a>.";
+        }
+      });
     }
   </script>
 </body>

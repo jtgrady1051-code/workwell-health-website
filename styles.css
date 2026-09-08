@@ -139,10 +139,6 @@ header { position: sticky; top: 0; z-index: 50; background: #fcfcfc; border-bott
 .svc h3 { font-size: 1.08rem; margin-bottom: 8px; }
 .svc p { font-size: .9rem; color: var(--muted); }
 .svc .tag { display: inline-block; margin-top: 16px; font-size: .78rem; font-weight: 600; letter-spacing: .03em; color: var(--gold); }
-.svc.svc-soon { background: rgba(30,77,143,.05); border-color: rgba(30,77,143,.3); border-style: dashed; }
-.svc.svc-soon:hover { background: rgba(30,77,143,.09); }
-.svc.svc-soon .ico { background: rgba(30,77,143,.16); }
-.svc.svc-soon .tag { color: var(--teal-deep); }
 
 /* ============ EXAMINER ============ */
 .examiner .card-ex { display: flex; flex-wrap: wrap; gap: 40px; align-items: center; background: var(--card); border: 1px solid var(--line);
